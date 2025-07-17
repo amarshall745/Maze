@@ -9,6 +9,7 @@ public class EnemyController : MonoBehaviour
     public Animator anim;
 
     [Header("Wandering")]
+    public bool pause = false;
     public float wanderRadius = 10f;
     public float wanderInterval = 5f;
     private float wanderTimer;
@@ -38,13 +39,16 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        if (chasing)
+        if (!pause)
         {
-            chasePlayer();
-        }
-        else
-        {
-            wander();
+            if (chasing)
+            {
+                ChasePlayer();
+            }
+            else
+            {
+                Wander();
+            }
         }
 
 
@@ -66,9 +70,9 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    void chasePlayer()
+    void ChasePlayer()
     {
-        resetAnimation();
+        ResetAnimation();
         anim.SetBool("isRunning", true);
 
         agent.speed = chaseSpeed;
@@ -79,9 +83,7 @@ public class EnemyController : MonoBehaviour
             float dist = Vector3.Distance(transform.position, player.position);
             if (dist <= attackDistance)
             {
-                agent.SetDestination(transform.position);
-                anim.SetBool("isRunning", false);
-                Debug.Log("Attack player");
+                StealItem();
             }
             
             if (dist >= stopDistance)
@@ -92,9 +94,9 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    void wander()
+    void Wander()
     {
-        resetAnimation();
+        ResetAnimation();
         anim.SetBool("isWalking", true);
 
         agent.speed = wanderSpeed;
@@ -108,7 +110,23 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    void resetAnimation()
+    void StealItem()
+    {
+        agent.SetDestination(transform.position);
+        anim.SetBool("isRunning", false);
+        Debug.Log("Attack player");
+
+        GameObject item = player.GetComponent<PlayerInteraction>().pickedUpGO;
+
+        if (item != null)
+        {
+            pause = true;
+
+            item.GetComponent<Pickup>().StealAndDestroy(gameObject.transform.Find("Item Holder"));
+        }
+    }
+
+    void ResetAnimation()
     {
         anim.SetBool("isRunning", false);
         anim.SetBool("isWalking", false);
@@ -135,6 +153,11 @@ public class EnemyController : MonoBehaviour
             Gizmos.DrawSphere(agent.destination, 0.3f);
             Gizmos.DrawLine(transform.position, agent.destination);
         }
+    }
+
+    public void UnPause()
+    {
+        pause = false;
     }
 
 }

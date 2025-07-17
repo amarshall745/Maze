@@ -1,11 +1,11 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR;
 
 public class Pickup : MonoBehaviour
 {
     public bool canBePickedUp = true;
+    private bool returnTrue = false;
 
     void Update()
     {
@@ -36,11 +36,37 @@ public class Pickup : MonoBehaviour
         //gameObject.transform.localRotation = Quaternion.identity;
     }
 
+    public void StealAndDestroy(Transform holder)
+    {
+        gameObject.transform.SetParent(holder);
+        gameObject.transform.localPosition = Vector3.zero;
+        gameObject.GetComponent<Rigidbody>().isKinematic = true;
+        StartCoroutine(ShrinkOverTime(holder.transform.parent.gameObject));
+    }
+
     public bool CanBePickedUp(){
         if(canBePickedUp){
             return true;
         }else{
             return false;
         }
+    }
+
+    private IEnumerator ShrinkOverTime(GameObject enemy)
+    {
+        Vector3 originalScale = transform.localScale;
+        Vector3 targetScale = Vector3.zero;
+        float elapsed = 0f;
+
+        while (elapsed < 1)
+        {
+            transform.localScale = Vector3.Lerp(originalScale, targetScale, elapsed / 1);
+            elapsed += Time.deltaTime;
+            yield return null;
+        } 
+
+        transform.localScale = targetScale;
+        enemy.GetComponent<EnemyController>().UnPause();
+        Destroy(gameObject);
     }
 }
