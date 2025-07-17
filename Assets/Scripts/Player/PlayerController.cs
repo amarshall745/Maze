@@ -24,21 +24,11 @@ public class PlayerController : MonoBehaviour
 
     public Animator anim;
 
-    private bool canPressButton;
-
-    [Header("Raycast")]
-    public Transform raycastPoint;
-    public float raycast10 = 10f;
-
     private void Awake()
     {
         instance = this;
     }
 
-    void Start()
-    {
-        canPressButton = false;
-    }
 
     void Update()
     {
@@ -89,34 +79,6 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y + mouseInput.x, transform.rotation.eulerAngles.z);
         camTrans.rotation = Quaternion.Euler(camTrans.rotation.eulerAngles + new Vector3(-mouseInput.y, 0f, 0f));
 
-
-        //Raycast
-        RayCast();
-
-
-
-
-
-    }
-
-    public void RayCast()
-    {
-        Ray ray = new Ray(raycastPoint.position, raycastPoint.forward);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit, 100))
-        {
-
-            if (hit.distance <= raycast10)
-            {
-                Debug.Log("Less than 10");
-                if (hit.collider.CompareTag("Pickup"))
-                {
-                    Debug.Log("Pickup");
-                }
-            }
-
-        }
     }
 
 }
