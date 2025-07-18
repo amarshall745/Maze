@@ -6,10 +6,12 @@ public class Pickup : MonoBehaviour
 {
     public bool canBePickedUp = true;
     private bool returnTrue = false;
+    public bool egg = false;
+    public GameObject spawnPoint;
 
-    void Update()
+    void Start()
     {
-        
+        gameObject.transform.position = spawnPoint.transform.position;
     }
 
     public void PickUp(GameObject Player){
@@ -42,6 +44,13 @@ public class Pickup : MonoBehaviour
         gameObject.transform.localPosition = Vector3.zero;
         gameObject.GetComponent<Rigidbody>().isKinematic = true;
         StartCoroutine(ShrinkOverTime(holder.transform.parent.gameObject));
+    }
+
+    public void StealAndCarry(Transform holder)
+    {
+        gameObject.transform.SetParent(holder);
+        gameObject.transform.localPosition = Vector3.zero;
+        gameObject.GetComponent<Rigidbody>().isKinematic = true;
     }
 
     public bool CanBePickedUp(){

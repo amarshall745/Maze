@@ -24,6 +24,8 @@ public class EnemyController : MonoBehaviour
 
     private Vector3 destination;
 
+    public GameObject holdingItem;
+
     [Header("Raycast")]
     public Transform raycastPoint;
     public float raycastDistance = 10f;
@@ -122,7 +124,40 @@ public class EnemyController : MonoBehaviour
         {
             pause = true;
 
-            item.GetComponent<Pickup>().StealAndDestroy(gameObject.transform.Find("Item Holder"));
+            if (gameObject.CompareTag("Egg"))
+            {
+                item.GetComponent<Pickup>().StealAndCarry(gameObject.transform.Find("Item Holder"));
+                PutEggBack();
+            }
+            else
+            {
+                item.GetComponent<Pickup>().StealAndDestroy(gameObject.transform.Find("Item Holder"));
+            }
+        }
+    }
+
+    void PutEggBack()
+    {
+        ResetAnimation();
+        anim.SetBool("isRunning", true);
+
+        holdingItem = gameObject.transform.Find("Item Holder");
+        agent.speed = chaseSpeed;
+        if (holdingItem != null)
+        {
+            agent.SetDestination(player.position);
+
+            float dist = Vector3.Distance(transform.position, player.position);
+            if (dist <= attackDistance)
+            {
+                StealItem();
+            }
+
+            if (dist >= stopDistance)
+            {
+                Debug.Log("Stop chasing");
+                chasing = false;
+            }
         }
     }
 
